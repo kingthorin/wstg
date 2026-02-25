@@ -41,11 +41,14 @@ jobs:
         npm install -g textlint-rule-terminology
     - name: Debug Installation and Config
       run: |
-        textlint --version  # Should show installed version
-        ls -la .github/configs/.textlintrc || echo "Config file not found!"
-        cat .github/configs/.textlintrc  # Logs the config content for verification
-        textlint --debug --config .github/configs/.textlintrc --dry-run document/README.md > debug_log.txt  # Use --debug for verbose output; replace README.md with a real MD file
-        cat debug_log.txt  # Check logs for "Loading config", "Enabled rules: terminology", and custom terms loading
+        textlint --version  # Confirm installation
+        ls -la base/.github/configs/.textlintrc || echo "Config file not found in base!"
+        cat base/.github/configs/.textlintrc  # Log raw content
+        # Validate JSON syntax (using Node's JSON.parse for simple check)
+        node -e "const fs = require('fs'); try { JSON.parse(fs.readFileSync('base/.github/configs/.textlintrc', 'utf8')); console.log('Config JSON is valid'); } catch (e) { console.error('Config JSON invalid:', e.message); }"
+        # Run textlint with max debug on a known file (use pr/document/README.md or any MD in pr/)
+        textlint --debug --config base/.github/configs/.textlintrc --dry-run pr/document/README.md > debug_log.txt 2>&1
+        cat debug_log.txt  # Look for "Loading config failed", parse errors, or "Rule: terminology" with defaults instead of customs
     - name: Get Changed Files
       id: files
       working-directory: pr
