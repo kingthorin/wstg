@@ -1,15 +1,13 @@
+{
   "rules": {
     "terminology": {
-      // List of terms
       "terms": [
-        // Exact spelling including the case
         "cURL",
         "JavaScript",
         "ESLint",
         "Sass",
         "Less",
         "npm",
-        // RegExp (case-insensitive) → replacement
         ["front[- ]end(\\w*)", "frontend$1"],
         ["back[- ]end(\\w*)", "backend$1"],
         ["web[- ]?site(s?)", "site$1"],
@@ -20,7 +18,7 @@
         ["id['’]?s", "IDs"],
         ["(\\w+[^.?!]\\)? )webpack", "$1webpack"],
         ["(\\w+[^.?!]\\)? )internet", "$internet"]
-      ],
+      ]
     }
   }
 }
