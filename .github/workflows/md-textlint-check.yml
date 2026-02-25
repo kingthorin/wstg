@@ -56,6 +56,8 @@ jobs:
       env:
         FILES: '${{ steps.files.outputs.files_updated }}'
       run: |
+        pwd >> $GITHUB_STEP_SUMMARY
+        ls -lah base/.github/configs/.textlintrc >> $GITHUB_STEP_SUMMARY
         touch log.txt
         # All markdown files, excluding .github
         # Use fix flag so that it goes through all files
