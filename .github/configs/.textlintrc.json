@@ -1,0 +1,281 @@
+{
+  "rules": {
+    "terminology": {
+      // Load default terms (see terms.json in the repository)
+      "defaultTerms": false,
+      // Syntax elements to skip. Overrides the default
+      "skip": [
+        "Link",
+        "LinkReference",
+        "Blockquote"
+      ],
+      // List of terms
+      "terms": [
+        // Brands/Products
+        "Airbnb",
+        "Android",
+        "AppleScript",
+        "AppVeyor",
+        "AVA",
+        "BrowserStack",
+        "Browsersync",
+        "Codecov",
+        "CodePen",
+        "CodeSandbox",
+        "curl",
+        "DefinitelyTyped",
+        "EditorConfig",
+        "ESLint",
+        "GitHub",
+        "GraphQL",
+        "GraphiQL",
+        "iOS",
+        "JavaScript",
+        "JetBrains",
+        "jQuery",
+        "LinkedIn",
+        "Lodash",
+        "Nmap",
+        "MacBook",
+        "Markdown",
+        "Nginx",
+        "OpenType",
+        "PayPal",
+        "PhpStorm",
+        "RubyMine",
+        "SemVer",
+        "TypeScript",
+        "UglifyJS",
+        "Wasm",
+        "WebAssembly",
+        "WebStorm",
+        "Wikipedia",
+        "WordPress",
+        "YouTube",
+        [
+          "Open Web Application Security Project",
+          "Open Worldwide Application Security Project"
+        ],
+        [
+          "StackOverflow",
+          "Stack Overflow"
+        ],
+        [
+          "styled ?components",
+          "styled-components"
+        ],
+        [
+          "HTTP[ /]2(?:\\.0)?",
+          "HTTP/2"
+        ],
+        [
+          "OS X",
+          "macOS"
+        ],
+        [
+          "Mac ?OS",
+          "macOS"
+        ],
+        [
+          "a npm",
+          "an npm"
+        ],
+
+        // Abbreviations
+        "3D",
+        [
+          "3-D",
+          "3D"
+        ],
+        "AJAX",
+        "API",
+        [
+          "API['’]?s",
+          "APIs"
+        ],
+        "CSS",
+        "GIF",
+        "HTML",
+        "HTTPS",
+        "IoT",
+        "I/O",
+        [
+          "I-O",
+          "I/O"
+        ],
+        "JPEG",
+        "MIME",
+        "OK",
+        "PaaS",
+        "PDF",
+        "PNG",
+        "SaaS",
+        "URL",
+        [
+          "URL['’]?s",
+          "URLs"
+        ],
+        [
+          "an URL",
+          "a URL"
+        ],
+        [
+          "wi[- ]?fi",
+          "Wi-Fi"
+        ],
+
+        // Words and phrases
+        "ID",
+        "JavaScript",
+        // https://stackoverflow.com/questions/1151338/id-or-id-on-user-interface
+        [
+          "id['’]s",
+          "IDs"
+        ],
+        [
+          "backwards compatible",
+          "backward compatible"
+        ],
+        [
+          "behaviour(s)?",
+          "behavior$1"
+        ],
+        [
+          "build system(s)?",
+          "build tool$1"
+        ],
+        [
+          "client side|clientside",
+          "client-side"
+        ],
+        [
+          "CLI tool(s)?",
+          "command-line tool$1"
+        ],
+        [
+          "he or she",
+          "they"
+        ],
+        [
+          "he/she",
+          "they"
+        ],
+        [
+          "\\(s\\)he",
+          "they"
+        ],
+        [
+          "his/her",
+          "their"
+        ],
+        [
+          "his or her",
+          "their"
+        ],
+        [
+          "organisation(s|'s)?",
+          "organization$1"
+        ],
+        [
+          "repo\\b",
+          "repository"
+        ],
+        [
+          "server side|serverside",
+          "server-side"
+        ],
+        [
+          "smartphone(s)?",
+          "mobile phone$1"
+        ],
+        // https://stackoverflow.com/questions/44934828/is-it-spread-syntax-or-the-spread-operator
+        [
+          "spread operator",
+          "spread syntax"
+        ],
+        [
+          "re-direct(ing|ed)?",
+          "redirect$1"
+        ],
+        [
+          "black[- ]?list(?:ed|ing)?",
+          "deny list(s), or re-write as applicable"
+        ],
+        [
+          "white[- ]?list(?:ed|ing)?",
+          "allow list(s), or re-write as applicable"
+        ],
+
+        // Single word
+        [
+          "auto[- ]complete",
+          "autocomplete"
+        ],
+        [
+          "auto[- ]format",
+          "autoformat"
+        ],
+        [
+          "auto[- ]fix",
+          "autofix"
+        ],
+        [
+          "auto[- ]fixing",
+          "autofixing"
+        ],
+        [
+          "bug[- ]fix(es)?",
+          "bugfix$1"
+        ],
+        [
+          "change[- ]log(s)?",
+          "changelog$1"
+        ],
+        [
+          "check[- ]-box(es)?",
+          "checkbox$1"
+        ],
+        [
+          "code[- ]base(es)?",
+          "codebase$1"
+        ],
+        [
+          "co[- ]locate(d?)",
+          "colocate$1"
+        ],
+        [
+          "end[- ]point(s)?",
+          "endpoint$1"
+        ],
+        [
+          "e[- ]mail(s)?",
+          "email$1"
+        ],
+        [
+          "file[- ]name(s)?",
+          "filename$1"
+        ],
+        [
+          "hack[- ]a[- ]thon(s)?",
+          "hackathon$1"
+        ],
+        [
+          "host[- ]name(s)?",
+          "hostname$1"
+        ],
+        [
+          "hot[- ]key(s)?",
+          "hotkey$1"
+        ],
+        [
+          "lock[- ]file(s)?",
+          "lockfile$1"
+        ],
+        [
+          "mark-up",
+          "markup"
+        ],
+        // "mark up" as a verb is OK
+        [
+          "meta[- ]data",
+          "metadata
