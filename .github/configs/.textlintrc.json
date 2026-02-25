@@ -1,7 +1,7 @@
 {
   "rules": {
     "terminology": {
-      // Load default terms (see terms.json in the repository)
+      // Do not oad default terms (see terms.json in the tool's repository)
       "defaultTerms": false,
       // Syntax elements to skip. Overrides the default
       "skip": [
@@ -22,7 +22,7 @@
         "Codecov",
         "CodePen",
         "CodeSandbox",
-        "curl",
+        "cURL",
         "DefinitelyTyped",
         "EditorConfig",
         "ESLint",
