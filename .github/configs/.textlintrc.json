@@ -1,7 +1,7 @@
 {
   "rules": {
     "terminology": {
-      // Do not oad default terms (see terms.json in the tool's repository)
+      // Do not load default terms (see terms.json in the tool's repository)
       "defaultTerms": false,
       // Syntax elements to skip. Overrides the default
       "skip": [
@@ -278,4 +278,310 @@
         // "mark up" as a verb is OK
         [
           "meta[- ]data",
-          "metadata
+          "metadata"
+        ],
+        [
+          "micro[- ]service(s)?",
+          "microservice$1"
+        ],
+        [
+          "name[- ]space(s)?",
+          "namespace$1"
+        ],
+        [
+          "pre[- ]condition(s)?",
+          "precondition$1"
+        ],
+        [
+          "pre[- ]defined",
+          "predefined"
+        ],
+        [
+          "pre[- ]release(s)?",
+          "prerelease$1"
+        ],
+        [
+          "re[- ]write",
+          "rewrite"
+        ],
+        [
+          "run[- ]time",
+          "runtime"
+        ],
+        [
+          "screen[- ]shot(s)?",
+          "screenshot$1"
+        ],
+        [
+          "screen[- ]?snap(s)?",
+          "screenshot$1"
+        ],
+        [
+          "sub[- ]class((?:es|ing)?)",
+          "subclass$1"
+        ],
+        [
+          "sub[- ]tree(s)?",
+          "subtree$1"
+        ],
+        [
+          "time[- ]stamp(s)?",
+          "timestamp$1"
+        ],
+        [
+          "touch[- ]screen(s)?",
+          "touchscreen$1"
+        ],
+        [
+          "user[- ]name(s)?",
+          "username$1"
+        ],
+        [
+          "walk[- ]through",
+          "walkthrough"
+        ],
+        [
+          "white[- ]space",
+          "whitespace"
+        ],
+        [
+          "wild[- ]card(s)?",
+          "wildcard$1"
+        ],
+
+        // Multiple words
+        [
+          "css-?in-?js",
+          "CSS in JS"
+        ],
+        [
+          "code-?review(s)?",
+          "code review$1"
+        ],
+        [
+          "code-?splitting",
+          "code splitting"
+        ],
+        [
+          "end-?user(s)?",
+          "end user$1"
+        ],
+        [
+          "file-?type(s)?",
+          "file type$1"
+        ],
+        [
+          "regexp?(s)?",
+          "regular expression$1"
+        ],
+        [
+          "style-?guide(s)?",
+          "style guide$1"
+        ],
+        [
+          "source-?map(s)?",
+          "source map$1"
+        ],
+        [
+          "style-?sheet(s)?",
+          "style sheet$1"
+        ],
+        [
+          "user-?base",
+          "user base"
+        ],
+        [
+          "web-page(s)?",
+          "webpage$1"
+        ],
+
+        // Hyphenated
+        [
+          "built ?in",
+          "built-in"
+        ],
+        [
+          "command ?line",
+          "command-line"
+        ],
+        [
+          "end ?to ?end",
+          "end-to-end"
+        ],
+        [
+          "end[- ]?2[- ]?end",
+          "end-to-end"
+        ],
+        [
+          "error ?prone",
+          "error-prone"
+        ],
+        [
+          "higher ?order",
+          "higher-order"
+        ],
+        [
+          "key[/ ]?value",
+          "key-value"
+        ],
+        // https://github.com/OWASP/wstg/issues/536
+        [
+          "man-in-the-middle|man in the middle",
+          "manipulator-in-the-middle"
+        ],
+        [
+          "two ?steps? authentication",
+          "two-step authentication"
+        ],
+        [
+          "two ?steps? verification",
+          "two-step verification"
+        ],
+        [
+          "2 ?steps? authentication",
+          "two-step authentication"
+        ],
+        [
+          "2 ?steps? verification",
+          "two-step verification"
+        ],
+        [
+          "3rd[- ]party",
+          "third-party"
+        ],
+
+        // Starts from a lower case letter in the middle of a sentence
+        [
+          "(?<=(?:\\w+[^.?!])? )stylelint\\b",
+          "stylelint"
+        ],
+        [
+          "(?<=(?:\\w+[^.?!])? )webpack\\b",
+          "webpack"
+        ],
+        [
+          "(?<=(?:\\w+[^.?!])? )npm\\b",
+          "npm"
+        ],
+
+        // Typos
+        [
+          "accidentially",
+          "accidentally"
+        ],
+        [
+          "busineess",
+          "business"
+        ],
+        [
+          "busines",
+          "business"
+        ],
+        [
+          "analysed",
+          "analyzed"
+        ],
+        [
+          "cancelling",
+          "canceling"
+        ],
+        [
+          "environemnt(s)?",
+          "environment$1"
+        ],
+        [
+          "explotation",
+          "exploitation"
+        ],
+        [
+          "encyprtion",
+          "encryption"
+        ],
+        [
+          "flacky test(s)?",
+          "flaky test$1"
+        ],
+        [
+          "falsey",
+          "falsy"
+        ],
+        [
+          "hsot",
+          "host"
+        ],
+        [
+          "intiated",
+          "initiated"
+        ],
+        [
+          "localised",
+          "localized"
+        ],
+        [
+          "otehr(s)?",
+          "other$1"
+        ],
+        [
+          "pacakge(s)?",
+          "package$1"
+        ],
+        [
+          "perfomed",
+          "performed"
+        ],
+        [
+          "refernece(s)?",
+          "reference$1"
+        ],
+        [
+          "renegotiaion(s)?",
+          "renegotiation$1"
+        ],
+        [
+          "REST-ful",
+          "RESTful"
+        ],
+        [
+          "traget",
+          "target"
+        ],
+        [
+          "truly",
+          "truly"
+        ],
+        [
+          "unneccesary",
+          "unnecessary"
+        ],
+        [
+          "unnecesary",
+          "unnecessary"
+        ],
+        [
+          "unecessary",
+          "unnecessary"
+        ],
+        [
+          "unneccessary",
+          "unnecessary"
+        ],
+        [
+          "unnecceary",
+          "unnecessary"
+        ],
+        [
+          "usefull",
+          "useful"
+        ],
+        [
+          "use[- ]full",
+          "useful"
+        ],
+        [
+          "verion(s)?",
+          "version$1"
+        ]
+      ]
+    }
+  }
+}
