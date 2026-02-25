@@ -4,8 +4,8 @@ This section describes the OWASP web application security testing methodology an
 
 ## What is Web Application Security Testing?
 
-CURL
-base 64
+Try CURL
+With base 64
 
 A security test is a method of evaluating the security of a computer system or network by methodically validating and verifying the effectiveness of application security controls. A web application security test focuses only on evaluating the security of a web application. The process involves an active analysis of the application for any weaknesses, technical flaws, or vulnerabilities. Any security issues that are found will be presented to the system owner, together with an assessment of the impact, a proposal for mitigation or a technical solution.
 
