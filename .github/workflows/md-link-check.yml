@@ -72,7 +72,9 @@ jobs:
           mkdir -p "base/$(dirname "$FILE")"
           cp "pr/$FILE" "base/$FILE"
         done
-        
+
+        ls -lah base/.github/configs/markdown-link-check-config.json
+
         # Check only .md files in base/ where relative links can be resolved
         for FILE in $FILES; do
           if printf '%s\n' "$FILE" | grep -q '.*\.md$'; then
