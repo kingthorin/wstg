@@ -12,6 +12,8 @@ Reviewing and testing configurations are critical tasks in creating and maintain
 
 While the typical web and application server installation will contain a lot of functionality (like application examples, documentation, test pages), what is not essential should be removed before deployment to avoid post-install exploitation.
 
+Try CURL
+
 ## Test Objectives
 
 - Ensure that default and known files have been removed.
