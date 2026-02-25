@@ -52,7 +52,12 @@ jobs:
         echo "all_changed=$ALL_SPACE_SEPARATED" >> $GITHUB_OUTPUT
         echo "## Changed files" >> $GITHUB_STEP_SUMMARY
         echo "$FILES" >> $GITHUB_STEP_SUMMARY
+        pwd
       shell: bash
+    - name: debug
+      run: |
+        pwd
+        ls -lah base/.github/configs/markdown-link-check-config.json
     - name: PR link check
       if: github.event_name == 'pull_request'
       env:
@@ -61,7 +66,7 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        
+        pwd
         echo "The Following files were changed or created:"
         printf '%s\n' $FILES
         touch log err
@@ -73,7 +78,7 @@ jobs:
           cp "pr/$FILE" "base/$FILE"
         done
 
-        ls -lah base/.github/configs/markdown-link-check-config.json
+        ls -lah base/.github/configs/markdown-link-check-config.json >> $GITHUB_STEP_SUMMARY
 
         # Check only .md files in base/ where relative links can be resolved
         for FILE in $FILES; do
