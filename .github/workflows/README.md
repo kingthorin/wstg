@@ -43,13 +43,13 @@ The Markdown Link Check, Lint Check, and Terminology Lint Check workflows all us
 
 - **Base at workspace root** – The base branch is checked out at the workspace root so that workflow files and config (e.g. `.github/configs/`) come from the base branch, not the PR.
 - **PR in `pr/`** – The PR branch is checked out into `pr/` with `fetch-depth: 0`.
-- **Get changed files (step)** – The composite action `actions/get-changed-files` runs as a step (with `working-directory: pr`). It outputs `files_updated` (.md only) and `all_changed`; paths under `.github/` are excluded. The job then overlays those files from `pr/` onto the root and runs the tool using config from the base (root).
+- **Get changed files (step)** – The composite action `actions/get-changed-files` runs as a step with `working_directory: pr` in `with`. It outputs `files_updated` (.md only) and `all_changed`; paths under `.github/` are excluded. The job then overlays those files from `pr/` onto the root and runs the tool using config from the base (root).
 
 ### `actions/get-changed-files`
 
-Composite action that computes the list of files changed between the base ref and the PR head. Must be run with `working-directory` set to the repo root (e.g. `pr`) where a full clone exists.
+Composite action that computes the list of files changed between the base ref and the PR head. Call it with `working_directory: pr` (or the path where the full clone lives) so the git diff runs in the right repo.
 
-- **Inputs:** `base_ref` – branch or ref to compare against (e.g. `master`).
+- **Inputs:** `base_ref` – branch or ref to compare against (e.g. `master`). `working_directory` – optional directory to run in (e.g. `pr`).
 - **Outputs:** `files_updated` (space-separated changed `.md` files), `all_changed` (space-separated all changed files). Paths under `.github/` are excluded.
 - Used by: `md-link-check.yml`, `md-lint-check.yml`, `md-textlint-check.yml`.
 

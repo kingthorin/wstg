@@ -31,7 +31,7 @@ jobs:
       uses: ./.github/actions/get-changed-files
       with:
         base_ref: ${{ github.base_ref || 'master' }}
-      working-directory: pr
+        working_directory: pr
     - name: Save PR Number
       env:
         PR_NUMBER: ${{ github.event.number }}
