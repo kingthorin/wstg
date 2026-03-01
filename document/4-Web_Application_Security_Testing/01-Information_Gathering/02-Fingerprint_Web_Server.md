@@ -10,6 +10,8 @@ Web server fingerprinting is the task of identifying the type and version of web
 
 Accurately discovering the type of web server that an application runs on can enable security testers to determine if the application is vulnerable to attack. In particular, servers running older versions of software without up-to-date security patches can be susceptible to known version-specific exploits.
 
+[should fail](https://shouldfail.com)
+
 ## Test Objectives
 
 - Determine the version and type of a running web server to enable further discovery of any known vulnerabilities.
