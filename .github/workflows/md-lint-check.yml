@@ -14,23 +14,23 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
+    # PR at root so the composite action is found; base in base/ for config
+    - name: Checkout PR
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        fetch-depth: 0
     - name: Checkout Base
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       with:
         repository: kingthorin/wstg
         ref: ${{ github.base_ref || 'master' }}
-    - name: Checkout PR
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      with:
-        ref: ${{ github.event.pull_request.head.sha }}
-        path: pr
-        fetch-depth: 0
+        path: base
     - name: Get Changed Files
       id: files
       uses: ./.github/actions/get-changed-files
       with:
         base_ref: ${{ github.base_ref || 'master' }}
-        working_directory: pr
     - name: Save PR Number
       env:
         PR_NUMBER: ${{ github.event.number }}
@@ -53,18 +53,18 @@ jobs:
       run: |
         set -euo pipefail
         
-        # Overlay PR changed files onto base (root); .github/ is excluded so base config stays
+        # Overlay PR (root) changed files onto base/
         for FILE in $FILES; do
           [ -z "$FILE" ] && continue
-          mkdir -p "$(dirname "$FILE")"
-          cp "pr/$FILE" "$FILE"
+          mkdir -p "base/$(dirname "$FILE")"
+          cp "$FILE" "base/$FILE"
         done
         
         : > lint.txt
         for FILE in $FILES; do
           [ -z "$FILE" ] && continue
-          if [ -f "$FILE" ]; then
-            OUTPUT="$(markdownlint-cli2 "$FILE" --config .github/configs/.markdownlint.json 2>&1)" || STATUS=$?
+          if [ -f "base/$FILE" ]; then
+            OUTPUT="$(markdownlint-cli2 "base/$FILE" --config base/.github/configs/.markdownlint.json 2>&1)" || STATUS=$?
             if [ "${STATUS:-0}" -eq 0 ]; then
               continue
             elif [ "${STATUS:-0}" -eq 1 ]; then
@@ -86,7 +86,7 @@ jobs:
     - name: Create Artifact for Comment
       if: failure()
       run: |
-        python3 .github/workflows/scripts/format_lint_output.py > artifact.txt
+        python3 base/.github/workflows/scripts/format_lint_output.py > artifact.txt
     - name: Upload List of Issues
       if: failure()
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0

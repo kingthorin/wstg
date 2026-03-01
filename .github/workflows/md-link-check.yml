@@ -13,26 +13,31 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-    # Base at root so workflow and config are from base branch, not the PR
-    - name: Checkout Base
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      with:
-        repository: kingthorin/wstg
-        ref: ${{ github.base_ref || 'master' }}
+    # PR at root so the composite action (./.github/actions/get-changed-files) is found; base in base/ for config
     - name: Checkout PR
       if: github.event_name == 'pull_request'
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       with:
         ref: ${{ github.event.pull_request.head.sha }}
-        path: pr
         fetch-depth: 0
+    - name: Checkout Base
+      if: github.event_name == 'pull_request'
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      with:
+        repository: kingthorin/wstg
+        ref: ${{ github.base_ref || 'master' }}
+        path: base
+    - name: Checkout (workflow_dispatch)
+      if: github.event_name == 'workflow_dispatch'
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      with:
+        ref: ${{ github.sha }}
     - name: Get Changed Files
       if: github.event_name == 'pull_request'
       id: files
       uses: ./.github/actions/get-changed-files
       with:
         base_ref: ${{ github.base_ref || 'master' }}
-        working_directory: pr
     - name: Save PR Number
       env:
         PR_NUMBER: ${{ github.event.number }}
@@ -61,17 +66,17 @@ jobs:
         printf '%s\n' $FILES
         touch log err
         
-        # Overlay PR changed files onto base (root); .github/ is excluded by reusable workflow so base config stays
+        # Overlay PR (root) changed files onto base/; .github/ excluded so base config unchanged
         for FILE in $ALL_CHANGED; do
           [ -z "$FILE" ] && continue
-          mkdir -p "$(dirname "$FILE")"
-          cp "pr/$FILE" "$FILE"
+          mkdir -p "base/$(dirname "$FILE")"
+          cp "$FILE" "base/$FILE"
         done
         
-        # Check only .md files at root (base + PR overlay) using base config
+        # Check only .md files in base/ using base config
         for FILE in $FILES; do
           if printf '%s\n' "$FILE" | grep -q '.*\.md$'; then
-            markdown-link-check -q -v -c .github/configs/markdown-link-check-config.json "$FILE" 1>> log 2>> err
+            markdown-link-check -q -v -c base/.github/configs/markdown-link-check-config.json "base/$FILE" 1>> log 2>> err
           fi
         done
         
@@ -82,7 +87,7 @@ jobs:
       if: github.event_name == 'workflow_dispatch'
       run: |
         touch log err
-        find . -name \*.md -not -path ./pr/\* -exec markdown-link-check -q -v --config .github/configs/markdown-link-check-config.json {} 1>> log 2>> err \;
+        find . -name \*.md -exec markdown-link-check -q -v --config .github/configs/markdown-link-check-config.json {} 1>> log 2>> err \;
         if grep -q  "ERROR:" err ; then exit 1 ; else echo -e "No broken links found."; fi
         echo $(cat log)
         echo $(cat err)

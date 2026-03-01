@@ -39,21 +39,20 @@ This workflow:
 
 ## Shared Pattern for Markdown Checks
 
-The Markdown Link Check, Lint Check, and Terminology Lint Check workflows all use the same layout and the same “changed files” logic. Each workflow has **one job** so the PR checks UI shows three checks (not six):
+The Markdown Link Check, Lint Check, and Terminology Lint Check workflows share one layout and reuse the **composite action** `actions/get-changed-files` so the “get changed files” logic is not duplicated. Each workflow has **one job** so the PR checks UI shows three checks (not six):
 
-- **Base at workspace root** – The base branch is checked out at the workspace root so that workflow files and config (e.g. `.github/configs/`) come from the base branch, not the PR.
-- **PR in `pr/`** – The PR branch is checked out into `pr/` with `fetch-depth: 0`.
-- **Get changed files (step)** – The composite action `actions/get-changed-files` runs as a step with `working_directory: pr` in `with`. It outputs `files_updated` (.md only) and `all_changed`; paths under `.github/` are excluded. The job then overlays those files from `pr/` onto the root and runs the tool using config from the base (root).
+- **PR at workspace root** – The PR branch is checked out at the workspace root with `fetch-depth: 0`. That way the local composite action `./.github/actions/get-changed-files` is found (it is resolved from the root ref, i.e. the PR).
+- **Base in `base/`** – The base branch is checked out into `base/`. All **config** (e.g. `base/.github/configs/`) and the **content** that gets checked come from base. Changed files from the PR are overlaid onto `base/`, then the tool runs on `base/` with base’s config.
+- **Get changed files** – The composite action `actions/get-changed-files` runs at root (no `working_directory`). It outputs `files_updated` (.md only) and `all_changed`. Paths under `.github/` are excluded. The job then copies those files from root into `base/` and runs the checker on `base/` using config from `base/`.
+
+**Trade-off:** The workflow YAML and the composite action are taken from the **PR** ref (so a PR can change them). Only the **config and base content** used for the actual checks are from the base branch. To have workflow and config both from base only, you’d need to inline the “get changed files” script in each workflow (no shared action).
 
 ### `actions/get-changed-files`
 
-Composite action that computes the list of files changed between the base ref and the PR head. Call it with `working_directory: pr` (or the path where the full clone lives) so the git diff runs in the right repo.
+Composite action that computes the list of files changed between the base ref and the PR head. Used by all three Markdown workflows. Call it from the workspace root (PR checkout); optional input `working_directory` can be set if the action is ever used from a different layout.
 
-- **Inputs:** `base_ref` – branch or ref to compare against (e.g. `master`). `working_directory` – optional directory to run in (e.g. `pr`).
-- **Outputs:** `files_updated` (space-separated changed `.md` files), `all_changed` (space-separated all changed files). Paths under `.github/` are excluded.
-- Used by: `md-link-check.yml`, `md-lint-check.yml`, `md-textlint-check.yml`.
-
-The file `reusable_changed_files.yml` (reusable workflow) is no longer used by these workflows; they use the composite action above so that each workflow has one job and the PR checks UI shows three checks. The reusable workflow is kept for possible use from other workflows.
+- **Inputs:** `base_ref` (required), `working_directory` (optional).
+- **Outputs:** `files_updated`, `all_changed`.
 
 ## `dummy.yml`
 
@@ -66,10 +65,8 @@ Utility action named "Markdown Lint Check" (same name as `md-lint-check.yml`) th
 Checks Pull Requests for broken links.
 
 This workflow:
-- Has a single job (**link-check**). Changed files are computed by the **Get changed files** step using the composite action `actions/get-changed-files` (so the PR UI shows one check for this workflow).
-- Checks out the **base branch** at the workspace root and the **PR head** into `pr/`.
-- Overlays all changed files from `pr/` onto the root (base). Link check runs only on changed `.md` files so relative links resolve; config is always from the base (root).
-- On `workflow_dispatch`, runs the link checker over all Markdown in the repo (excluding `pr/`).
+- Has a single job (**link-check**). Checkout: PR at root, base in `base/`. Changed files from the composite action `actions/get-changed-files`; overlay root → `base/`; run link check on `base/` with `base/.github/configs/`.
+- On `workflow_dispatch`, checks out the repo at root and runs the link checker over all Markdown.
 
 - Trigger: Pull Requests (when `.md` files are changed, excluding `.github/**`). Manual (`workflow_dispatch`).
 - Config File: `markdown-link-check-config.json`
@@ -79,10 +76,7 @@ This workflow:
 Checks Markdown files and flags style or syntax issues.
 
 This workflow:
-- Has a single job (**lint**). Changed files are computed by the **Get changed files** step using the composite action `actions/get-changed-files`.
-- Checks out the **base branch** at the workspace root and the **PR head** into `pr/`.
-- Overlays changed files from `pr/` onto the root and runs `markdownlint-cli2` only on those files, using config and `format_lint_output.py` from the base (root).
-- Uploads artifacts for both success and failure to work with `comment.yml`.
+- Has a single job (**lint**). Checkout: PR at root, base in `base/`. Uses composite action; overlay root → `base/`; run markdownlint on `base/` with config and `format_lint_output.py` from `base/`.
 
 - Trigger: Pull Requests (when `.md` files are changed, excluding `.github/**`).
 - Config File: `.markdownlint.json`
@@ -92,9 +86,7 @@ This workflow:
 Checks Markdown files for spelling style and typo issues.
 
 This workflow:
-- Has a single job (**textlint**). Changed files are computed by the **Get changed files** step using the composite action `actions/get-changed-files`.
-- Checks out the **base branch** at the workspace root and the **PR head** into `pr/`.
-- Overlays changed files from `pr/` onto the root and runs textlint only on those files, using config from the base (root).
+- Has a single job (**textlint**). Checkout: PR at root, base in `base/`. Uses composite action; overlay root → `base/`; run textlint on `base/` with config from `base/`.
 
 - Trigger: Pull Requests (when `.md` files are changed, excluding `.github/**`).
 - Config File: `.textlintrc.json`

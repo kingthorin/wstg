@@ -15,23 +15,23 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
+    # PR at root so the composite action is found; base in base/ for config
+    - name: Checkout PR
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        fetch-depth: 0
     - name: Checkout Base
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       with:
         repository: kingthorin/wstg
         ref: ${{ github.base_ref || 'master' }}
-    - name: Checkout PR
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      with:
-        ref: ${{ github.event.pull_request.head.sha }}
-        path: pr
-        fetch-depth: 0
+        path: base
     - name: Get Changed Files
       id: files
       uses: ./.github/actions/get-changed-files
       with:
         base_ref: ${{ github.base_ref || 'master' }}
-        working_directory: pr
     - name: Save PR Number
       env:
         PR_NUMBER: ${{ github.event.number }}
@@ -56,18 +56,18 @@ jobs:
         set -euo pipefail
         touch log.txt
         
-        # Overlay PR changed files onto base (root); .github/ is excluded so base config stays
+        # Overlay PR (root) changed files onto base/
         for FILE in $FILES; do
           [ -z "$FILE" ] && continue
-          mkdir -p "$(dirname "$FILE")"
-          cp "pr/$FILE" "$FILE"
+          mkdir -p "base/$(dirname "$FILE")"
+          cp "$FILE" "base/$FILE"
         done
         
         for FILE in $FILES; do
           [ -z "$FILE" ] && continue
           echo "$FILE" | grep -q '\.md$' || continue
-          [ -f "$FILE" ] || continue
-          textlint --config .github/configs/.textlintrc.json --fix "$FILE" | tee -a log.txt || true
+          [ -f "base/$FILE" ] || continue
+          textlint --config base/.github/configs/.textlintrc.json --fix "base/$FILE" | tee -a log.txt || true
         done
         if grep -q 'Incorrect term' log.txt; then exit 1; else echo -e "No terminology issues found."; fi
     - name: Show Mistakes
