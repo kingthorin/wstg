@@ -9,7 +9,13 @@ on:
     - '!.github/**'
 
 jobs:
+  get-changed-files:
+    uses: ./.github/workflows/reusable_changed_files.yml
+    with:
+      base_ref: ${{ github.base_ref || 'master' }}
+
   textlint:
+    needs: get-changed-files
     permissions:
       contents: read
       pull-requests: write
@@ -18,9 +24,8 @@ jobs:
     - name: Checkout Base
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       with:
-        repository: OWASP/wstg
+        repository: kingthorin/wstg
         ref: ${{ github.base_ref || 'master' }}
-        path: base
     - name: Checkout PR
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       with:
@@ -44,28 +49,27 @@ jobs:
       run: |
         npm install -g textlint
         npm install -g textlint-rule-terminology
-    - name: Get Changed Files
-      id: files
-      working-directory: pr
-      run: |
-        # Get list of changed .md files (excluding .github/)
-        git fetch origin ${{ github.base_ref }}
-        FILES=$(git diff --name-only --diff-filter=d origin/${{ github.base_ref }}...HEAD | grep '\.md$' | grep -v '^\.github/' || true)
-        # Convert newlines to spaces for compatibility with expected format
-        FILES_SPACE_SEPARATED=$(echo "$FILES" | tr '\n' ' ' | xargs)
-        echo "files_updated=$FILES_SPACE_SEPARATED" >> $GITHUB_OUTPUT
-        echo "## Changed files" >> $GITHUB_STEP_SUMMARY
-        echo "$FILES" >> $GITHUB_STEP_SUMMARY
-      shell: bash
     - name: Run textlint Check
       env:
-        FILES: '${{ steps.files.outputs.files_updated }}'
+        FILES: '${{ needs.get-changed-files.outputs.files_updated }}'
       run: |
+        set -euo pipefail
         touch log.txt
-        # All markdown files, excluding .github
-        # Use fix flag so that it goes through all files
-        for FILE in $FILES; do echo "$FILE" | grep -v \.github && textlint --config base/.github/configs/.textlintrc.json --fix "pr/$FILE" | tee -a log.txt; done
-        if grep -q  'Incorrect term' log.txt ; then exit 1 ; else echo -e \"No terminology issues found.\"; fi
+        
+        # Overlay PR changed files onto base (root); .github/ is excluded so base config stays
+        for FILE in $FILES; do
+          [ -z "$FILE" ] && continue
+          mkdir -p "$(dirname "$FILE")"
+          cp "pr/$FILE" "$FILE"
+        done
+        
+        for FILE in $FILES; do
+          [ -z "$FILE" ] && continue
+          echo "$FILE" | grep -q '\.md$' || continue
+          [ -f "$FILE" ] || continue
+          textlint --config .github/configs/.textlintrc.json --fix "$FILE" | tee -a log.txt || true
+        done
+        if grep -q 'Incorrect term' log.txt; then exit 1; else echo -e "No terminology issues found."; fi
     - name: Show Mistakes
       if: failure()
       run: |
@@ -76,7 +80,6 @@ jobs:
       if: failure()
       run: |
         echo "**The following mistakes were identified:**" > artifact.txt
-        # Copy to generic name for commenting
         cat mistakes.txt | tee -a artifact.txt
     - name: Upload List of Mistakes
       if: failure()
@@ -92,4 +95,3 @@ jobs:
       with:
         name: artifact
         path: pr_number
-

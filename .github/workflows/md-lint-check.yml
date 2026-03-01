@@ -9,7 +9,13 @@ on:
     - '!.github/**'
 
 jobs:
+  get-changed-files:
+    uses: ./.github/workflows/reusable_changed_files.yml
+    with:
+      base_ref: ${{ github.base_ref || 'master' }}
+
   lint:
+    needs: get-changed-files
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -17,9 +23,8 @@ jobs:
     - name: Checkout Base
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       with:
-        repository: OWASP/wstg
+        repository: kingthorin/wstg
         ref: ${{ github.base_ref || 'master' }}
-        path: base
     - name: Checkout PR
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       with:
@@ -41,34 +46,26 @@ jobs:
         key: ${{ runner.os }}-npm-global-markdownlint-cli2
     - name: Install Dependencies
       run: npm install -g markdownlint-cli2
-    - name: Get Changed Files
-      id: files
-      working-directory: pr
-      run: |
-        # Get list of changed .md files (excluding .github/)
-        git fetch origin ${{ github.base_ref }}
-        FILES=$(git diff --name-only --diff-filter=d origin/${{ github.base_ref }}...HEAD | grep '\.md$' | grep -v '^\.github/' || true)
-        # Convert newlines to spaces for compatibility with expected format
-        FILES_SPACE_SEPARATED=$(echo "$FILES" | tr '\n' ' ' | xargs)
-        echo "files_updated=$FILES_SPACE_SEPARATED" >> $GITHUB_OUTPUT
-        echo "## Changed files" >> $GITHUB_STEP_SUMMARY
-        echo "$FILES" >> $GITHUB_STEP_SUMMARY
-      shell: bash
     - name: Run Linter
       env:
-        FILES: '${{ steps.files.outputs.files_updated }}'
+        FILES: '${{ needs.get-changed-files.outputs.files_updated }}'
       shell: bash
       run: |
         set -euo pipefail
         
-        # Initialize lint file (will remain empty if there are no issues)
-        : > lint.txt
-        
+        # Overlay PR changed files onto base (root); .github/ is excluded so base config stays
         for FILE in $FILES; do
-          if [ -f "pr/$FILE" ]; then
-            OUTPUT="$(markdownlint-cli2 "pr/$FILE" --config base/.github/configs/.markdownlint.json 2>&1)" || STATUS=$?
+          [ -z "$FILE" ] && continue
+          mkdir -p "$(dirname "$FILE")"
+          cp "pr/$FILE" "$FILE"
+        done
+        
+        : > lint.txt
+        for FILE in $FILES; do
+          [ -z "$FILE" ] && continue
+          if [ -f "$FILE" ]; then
+            OUTPUT="$(markdownlint-cli2 "$FILE" --config .github/configs/.markdownlint.json 2>&1)" || STATUS=$?
             if [ "${STATUS:-0}" -eq 0 ]; then
-              # File passed linting, continue to next file
               continue
             elif [ "${STATUS:-0}" -eq 1 ]; then
               printf '%s\n' "$OUTPUT" | tee -a lint.txt
@@ -89,8 +86,7 @@ jobs:
     - name: Create Artifact for Comment
       if: failure()
       run: |
-        # Parse and format the lint output for better readability
-        python3 base/.github/workflows/scripts/format_lint_output.py > artifact.txt
+        python3 .github/workflows/scripts/format_lint_output.py > artifact.txt
     - name: Upload List of Issues
       if: failure()
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
@@ -105,4 +101,3 @@ jobs:
       with:
         name: artifact
         path: pr_number
-

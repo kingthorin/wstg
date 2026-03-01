@@ -37,6 +37,22 @@ This workflow:
 
 - Trigger: Other workflows `workflow_run`.
 
+## Shared Pattern for Markdown Linting
+
+The Markdown Link Check, Lint Check, and Terminology Lint Check workflows all use the same layout and reuse the same “changed files” logic:
+
+- **Base at workspace root** – The base branch is checked out at the workspace root so that workflow files and config (e.g. `.github/configs/`) come from the base branch, not the PR. This keeps workflow and config under maintainer control.
+- **PR in `pr/`** – The PR branch is checked out into the `pr/` directory.
+- **Reusable workflow** – Changed files are computed by the reusable workflow `reusable_changed_files.yml`, which is invoked at **job** level (reusable workflows cannot be invoked from a step). The lint/link-check job then overlays changed files from `pr/` onto the root and runs the tool only on those files, using config from the base (root).
+
+### `reusable_changed_files.yml`
+
+Reusable workflow (invoked with `workflow_call`) that computes the list of files changed between the base ref and the PR head.
+
+- **Inputs:** `base_ref` – branch or ref to compare against (e.g. `master`).
+- **Outputs:** `files_updated` (space-separated changed `.md` files), `all_changed` (space-separated all changed files). Paths under `.github/` are excluded.
+- Used by: `md-link-check.yml`, `md-lint-check.yml`, `md-textlint-check.yml`.
+
 ## `dummy.yml`
 
 Utility action named "Markdown Lint Check" (same name as `md-lint-check.yml`) that serves as a fallback to satisfy branch protection requirements. This workflow only runs when NO Markdown files are changed in a PR (e.g., only an image or YAML that isn't linted). It's a complementary workflow to `md-lint-check.yml` that ensures the required "Markdown Lint Check" status check passes even when there are no Markdown files to lint.
@@ -48,10 +64,10 @@ Utility action named "Markdown Lint Check" (same name as `md-lint-check.yml`) th
 Checks Pull Requests for broken links.
 
 This workflow:
-- Checks out the **base branch** into `base/` and the **PR head** into `pr/` (each checkout uses an explicit path so neither overwrites the other)
-- Uses inline `git diff` from `pr/` (no third-party action) to list changed files between the base ref and HEAD, excluding deleted files and paths under `.github/`
-- Copies **all** changed files (including images and other assets) from `pr/` into `base/` so link targets exist, then runs the link checker only on changed `.md` files so relative links resolve correctly
-- Config and scripts are always taken from `base/` (the base branch), not from the PR
+- Runs a **get-changed-files** job that calls `reusable_changed_files.yml` to get changed files (job-level reusable workflow).
+- Checks out the **base branch** at the workspace root and the **PR head** into `pr/`.
+- Overlays all changed files from `pr/` onto the root (base). Link check runs only on changed `.md` files so relative links resolve; config is always from the base (root).
+- On `workflow_dispatch`, runs the link checker over all Markdown in the repo (excluding `pr/`).
 
 - Trigger: Pull Requests (when `.md` files are changed, excluding `.github/**`). Manual (`workflow_dispatch`).
 - Config File: `markdown-link-check-config.json`
@@ -61,11 +77,10 @@ This workflow:
 Checks Markdown files and flags style or syntax issues.
 
 This workflow:
-- Checks out the **base branch** into `base/` and the **PR head** into `pr/` (each checkout uses an explicit path so neither overwrites the other)
-- Uses inline `git diff` from `pr/` to list changed `.md` files (excluding deleted files and `.github/`), then runs `markdownlint-cli2` only on those files under `pr/`
-- Uses `format_lint_output.py` from `base/.github/workflows/scripts/` to format output for PR comments
-- Uploads artifacts for both success and failure cases to work with `comment.yml`
-- Config and scripts are always taken from `base/` (the base branch), not from the PR
+- Runs a **get-changed-files** job that calls `reusable_changed_files.yml`.
+- Checks out the **base branch** at the workspace root and the **PR head** into `pr/`.
+- Overlays changed files from `pr/` onto the root and runs `markdownlint-cli2` only on those files, using config and `format_lint_output.py` from the base (root).
+- Uploads artifacts for both success and failure to work with `comment.yml`.
 
 - Trigger: Pull Requests (when `.md` files are changed, excluding `.github/**`).
 - Config File: `.markdownlint.json`
@@ -75,12 +90,12 @@ This workflow:
 Checks Markdown files for spelling style and typo issues.
 
 This workflow:
-- Checks out the **base branch** into `base/` and the **PR head** into `pr/` (each checkout uses an explicit path so neither overwrites the other)
-- Uses inline `git diff` from `pr/` to list changed `.md` files (excluding deleted files and `.github/`), then runs textlint only on those files under `pr/`
-- Config is always taken from `base/` (the base branch), not from the PR
+- Runs a **get-changed-files** job that calls `reusable_changed_files.yml`.
+- Checks out the **base branch** at the workspace root and the **PR head** into `pr/`.
+- Overlays changed files from `pr/` onto the root and runs textlint only on those files, using config from the base (root).
 
 - Trigger: Pull Requests (when `.md` files are changed, excluding `.github/**`).
-- Config File: `.textlintrc`
+- Config File: `.textlintrc.json`
 
 ## `www_latest_update.yml`
 
