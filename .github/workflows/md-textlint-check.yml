@@ -9,13 +9,7 @@ on:
     - '!.github/**'
 
 jobs:
-  get-changed-files:
-    uses: ./.github/workflows/reusable_changed_files.yml
-    with:
-      base_ref: ${{ github.base_ref || 'master' }}
-
   textlint:
-    needs: get-changed-files
     permissions:
       contents: read
       pull-requests: write
@@ -32,6 +26,12 @@ jobs:
         ref: ${{ github.event.pull_request.head.sha }}
         path: pr
         fetch-depth: 0
+    - name: Get Changed Files
+      id: files
+      uses: ./.github/actions/get-changed-files
+      with:
+        base_ref: ${{ github.base_ref || 'master' }}
+      working-directory: pr
     - name: Save PR Number
       env:
         PR_NUMBER: ${{ github.event.number }}
@@ -51,7 +51,7 @@ jobs:
         npm install -g textlint-rule-terminology
     - name: Run textlint Check
       env:
-        FILES: '${{ needs.get-changed-files.outputs.files_updated }}'
+        FILES: '${{ steps.files.outputs.files_updated }}'
       run: |
         set -euo pipefail
         touch log.txt

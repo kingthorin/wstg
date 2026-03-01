@@ -8,14 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Reusable workflows must be called at job level, not in a step
-  get-changed-files:
-    uses: ./.github/workflows/reusable_changed_files.yml
-    with:
-      base_ref: ${{ github.base_ref || 'master' }}
-
   link-check:
-    needs: get-changed-files
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -33,6 +26,13 @@ jobs:
         ref: ${{ github.event.pull_request.head.sha }}
         path: pr
         fetch-depth: 0
+    - name: Get Changed Files
+      if: github.event_name == 'pull_request'
+      id: files
+      uses: ./.github/actions/get-changed-files
+      with:
+        base_ref: ${{ github.base_ref || 'master' }}
+      working-directory: pr
     - name: Save PR Number
       env:
         PR_NUMBER: ${{ github.event.number }}
@@ -51,8 +51,8 @@ jobs:
     - name: PR Link Check
       if: github.event_name == 'pull_request'
       env:
-        FILES: '${{ needs.get-changed-files.outputs.files_updated }}'
-        ALL_CHANGED: '${{ needs.get-changed-files.outputs.all_changed }}'
+        FILES: '${{ steps.files.outputs.files_updated }}'
+        ALL_CHANGED: '${{ steps.files.outputs.all_changed }}'
       shell: bash
       run: |
         set -euo pipefail
