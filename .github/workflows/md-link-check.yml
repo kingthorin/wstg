@@ -8,7 +8,14 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Reusable workflows must be called at job level, not in a step
+  get-changed-files:
+    uses: ./.github/workflows/reusable_changed_files.yml
+    with:
+      base_ref: ${{ github.base_ref || 'master' }}
+
   link-check:
+    needs: get-changed-files
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -41,16 +48,11 @@ jobs:
         key: ${{ runner.os }}-npm-global-markdown-link-check
     - name: Install Dependencies
       run: npm install -g markdown-link-check@3.11.0
-    - name: Get Changed Files
-      id: files
-      uses: ./.github/workflows/reusable_changed_files.yml
-      with:
-        base_ref: ${{ github.base_ref || 'master' }}
     - name: PR Link Check
       if: github.event_name == 'pull_request'
       env:
-        FILES: '${{ steps.files.outputs.files_updated }}'
-        ALL_CHANGED: '${{ steps.files.outputs.all_changed }}'
+        FILES: '${{ needs.get-changed-files.outputs.files_updated }}'
+        ALL_CHANGED: '${{ needs.get-changed-files.outputs.all_changed }}'
       shell: bash
       run: |
         set -euo pipefail
