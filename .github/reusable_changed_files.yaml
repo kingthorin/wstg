@@ -1,0 +1,44 @@
+name: Get Changed Files
+
+on:
+  workflow_call:
+    inputs:
+      base_ref:
+        description: "The base branch or ref to compare against"
+        required: true
+        type: string
+    outputs:
+      files_updated:
+        description: "Space-separated list of changed .md files"
+        value: ${{ jobs.get-changed-files.outputs.files_updated }}
+      all_changed:
+        description: "Space-separated list of all changed files"
+        value: ${{ jobs.get-changed-files.outputs.all_changed }}
+
+jobs:
+  get-changed-files:
+    runs-on: ubuntu-latest
+    outputs:
+      files_updated: ${{ steps.extract.outputs.files_updated }}
+      all_changed: ${{ steps.extract.outputs.all_changed }}
+    steps:
+    - name: Checkout PR
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Fetch Base
+      run: git fetch origin ${{ inputs.base_ref }}
+
+    - name: Extract Changed Files
+      id: extract
+      run: |
+        # Get all changed files
+        CHANGED_ALL=$(git diff --name-only --diff-filter=d origin/${{ inputs.base_ref }}...HEAD | grep -v '^\.github/' || true)
+        FILES=$(echo "$CHANGED_ALL" | grep '\.md$' || true)
+        FILES_SPACE_SEPARATED=$(echo "$FILES" | tr '\n' ' ' | xargs)
+        ALL_SPACE_SEPARATED=$(echo "$CHANGED_ALL" | tr '\n' ' ' | xargs)
+        echo "files_updated=$FILES_SPACE_SEPARATED" >> $GITHUB_OUTPUT
+        echo "all_changed=$ALL_SPACE_SEPARATED" >> $GITHUB_OUTPUT
+        echo "## Changed files" >> $GITHUB_STEP_SUMMARY
+        echo "$FILES" >> $GITHUB_STEP_SUMMARY
