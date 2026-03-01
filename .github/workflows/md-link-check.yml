@@ -42,7 +42,7 @@ jobs:
     - name: Install Dependencies
       run: npm install -g markdown-link-check@3.11.0
     - name: Get Changed Files
-      uses: ./.github/workflows/reusable_changed_files.yml
+      uses: ./base/.github/workflows/reusable_changed_files.yml
       with:
         base_ref: ${{ github.base_ref }}
     - name: PR Link Check
