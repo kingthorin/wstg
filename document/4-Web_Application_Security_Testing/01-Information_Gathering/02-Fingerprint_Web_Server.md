@@ -96,6 +96,16 @@ However, in both the Nginx and obscured server examples, the fields in common fo
 
 Testers can use this information to guess that the obscured server is Nginx. However, considering that a number of different web servers may share the same field ordering and fields can be modified or removed, this method is not definite.
 
+### Metadata Leakage
+In addition to the `Server` header, web servers and intermediaries may leak information through other metadata headers. These headers often disclose the underlying technology stack, including the operating system, programming language, or framework version.
+Common headers to review include:
+- `X-Powered-By`: Frequently used by frameworks (e.g., Express, ASP.NET, PHP) to disclose the technology used.
+- `X-AspNet-Version`: Discloses the version of the .NET framework.
+- `X-Runtime`: Common in Ruby on Rails applications.
+- `X-Version`: Some custom implementations use this to disclose internal versioning.
+
+The presence of these headers provides attackers with a starting point for searching for known vulnerabilities associated with specific versions of these technologies.
+
 ### Sending Malformed Requests
 
 Web servers may be identified by examining their error responses, and in the cases where they have not been customized, their default error pages. One way to compel a server to present these is by sending intentionally incorrect or malformed requests.

@@ -96,6 +96,8 @@
 
 #### 4.2.14 [Test Other HTTP Security Header Misconfigurations](4-Web_Application_Security_Testing/02-Configuration_and_Deployment_Management_Testing/14-Test_Other_HTTP_Security_Header_Misconfigurations.md)
 
+#### 4.2.15 [Test Browser Security Controls](4-Web_Application_Security_Testing/02-Configuration_and_Deployment_Management_Testing/15-Test_Browser_Security_Controls.md)
+
 ### 4.3 [Identity Management Testing](4-Web_Application_Security_Testing/03-Identity_Management_Testing/README.md)
 
 #### 4.3.1 [Test Role Definitions](4-Web_Application_Security_Testing/03-Identity_Management_Testing/01-Test_Role_Definitions.md)
