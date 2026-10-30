@@ -14,32 +14,6 @@ Vulnerabilities related to business data validation is unique in that they are a
 
 The frontend and the backend of the application should be verifying and validating that the data it has, is using, and is passing along is logically valid. Even if the user provides valid data to an application the business logic may make the application behave differently depending on data or circumstances.
 
-### Example 1
-
-Suppose you manage a multi-tiered e-commerce site that allows users to order carpet. The user selects their carpet, enters the size, makes the payment, and the frontend application has verified that all entered information is correct and valid for contact information, size, make and color of the carpet. But, the business logic in the background has two paths, if the carpet is in stock it is directly shipped from your warehouse, but if it is out of stock in your warehouse a call is made to a partner’s system and if they have it in-stock they will ship the order from their warehouse and reimbursed by them.
-
-What happens if an attacker is able to continue a valid in-stock transaction and send it as out-of-stock to your partner? What happens if an attacker is able to get in the middle and send messages to the partner warehouse ordering carpet without payment?
-
-### Example 2
-
-Many credit card systems are now downloading account balances nightly so the customers can check out more quickly for amounts under a certain value. The inverse is also true. If I pay my credit card off in the morning I may not be able to use the available credit in the evening. Another example may be if I use my credit card at multiple locations very quickly it may be possible to exceed my limit if the systems are basing decisions on last night’s data.
-
-### Example 3
-
-**[Distributed Denial of Dollar (DDo$)](https://www.zdnet.com/article/pirate-bay-defendant-urges-ddo-attack-on-lawyer/):**
-This was a campaign that was proposed by the founder of the site "The Pirate Bay" against the law firm who brought prosecutions against "The Pirate Bay". The goal was to take advantage of errors in the design of business features and in the process of credit transfer validation.
-
-This attack was performed by sending very small amounts of money of 1 SEK ($0.13 USD) to the law firm.
-The bank account to which the payments were directed had only 1000 free transfers, after which any transfers have a surcharge for the account holder (2 SEK). After the first thousand internet transactions every 1 SEK donation to the law firm will actually end up costing it 1 SEK instead.
-
-### Example 4
-
-A profile page lets users pick an avatar. The frontend always sends the image as a base64 `data:` URI, so the developers never validate what the `avatar` parameter contains. An attacker intercepts the request and replaces the value with `http://attacker.example/pixel.png`. The application accepts it and, later, a server-side job or an administrator's browser fetches that URL. The request reaches the attacker, who learns that the input was never validated and may use it to reach internal hosts or to track other users.
-
-### Example 5
-
-A product review form offers a rating from 1 to 5 stars through a set of radio buttons. If the backend only checks that the value is a number, `rating=-100` or `rating=99999` is stored and skews the average score, and a value such as `rating=NaN` may break the pages that display it.
-
 ## Test Objectives
 
 - Identify data injection points.
@@ -56,7 +30,7 @@ A product review form offers a rating from 1 to 5 stars through a set of radio b
 
 Specific Testing Method:
 
-- Perform frontend GUI Functional Valid testing on the application to ensure that the only "valid" values are accepted.
+- Perform functional testing of the frontend GUI to confirm that only "valid" values are accepted.
 - Using an intercepting proxy observe the HTTP POST/GET looking for places that variables such as cost and quantity are passed. Specifically, look for "hand-offs" between application/systems that may be possible injection or tamper points.
 - Once variables are found start interrogating the field with logically "invalid" data, such as social security numbers or unique identifiers that do not exist or that do not fit the business logic. This testing verifies that the server functions properly and does not accept logically invalid data.
 
@@ -74,12 +48,43 @@ For every parameter observed in the previous steps, replay the request with a mo
 
 Record which of the variations were accepted, because the impact depends on how the application uses the value afterwards and not only on whether it was rejected.
 
+## Examples
+
+### Partner Hand-Off
+
+Suppose you manage a multi-tiered e-commerce site that allows users to order carpet. The user selects their carpet, enters the size, makes the payment, and the frontend application has verified that all entered information is correct and valid for contact information, size, make and color of the carpet. But, the business logic in the background has two paths, if the carpet is in stock it is directly shipped from your warehouse, but if it is out of stock in your warehouse a call is made to a partner's system and if they have it in-stock they will ship the order from their warehouse and reimburse you.
+
+What happens if an attacker is able to continue a valid in-stock transaction and send it as out-of-stock to your partner? What happens if an attacker is able to get in the middle and send messages to the partner warehouse ordering carpet without payment?
+
+### Negative Transfer Amount
+
+A funds transfer function checks that the `amount` is not greater than the sender's balance, but does not check that it is positive. A negative amount always passes the balance check, and the transfer then moves money in the "wrong" direction: sending -$1000 to a victim's account results in the attacker receiving $1000 from the victim. See [Examples of business logic vulnerabilities](https://portswigger.net/web-security/logic-flaws/examples) from PortSwigger.
+
+### Distributed Denial of Dollar
+
+**[Distributed Denial of Dollar (DDo$)](https://www.zdnet.com/article/pirate-bay-defendant-urges-ddo-attack-on-lawyer/):**
+This was a campaign that was proposed by the founder of the site "The Pirate Bay" against the law firm who brought prosecutions against "The Pirate Bay". The goal was to take advantage of errors in the design of business features and in the process of credit transfer validation.
+
+This attack was performed by sending very small amounts of money of 1 SEK ($0.13 USD) to the law firm.
+The bank account to which the payments were directed had only 1000 free transfers, after which any transfers have a surcharge for the account holder (2 SEK). After the first thousand internet transactions every 1 SEK donation to the law firm will actually end up costing it 1 SEK instead.
+
+### Unvalidated Avatar URL
+
+A profile page lets users pick an avatar. The frontend always sends the image as a base64 `data:` URI, so the developers never validate what the `avatar` parameter contains. An attacker intercepts the request and replaces the value with `http://attacker.example/pixel.png`. The application accepts it and, later, a server-side job or an administrator's browser fetches that URL. The request reaches the attacker, who learns that the input was never validated and may use it to reach internal hosts or to track other users.
+
+### Out-of-Range Rating
+
+A product review form offers a rating from 1 to 5 stars through a set of radio buttons. If the backend only checks that the value is a number, `rating=-100` or `rating=99999` is stored and skews the average score, and a value such as `rating=NaN` may break the pages that display it.
+
 ## Related Test Cases
 
 - All [Injection Testing](../07-Injection/README.md) test cases.
 - [HTTP Parameter Pollution](../07-Injection/04-HTTP_Parameter_Pollution.md).
 - [Mass Assignment](../07-Injection/20-Mass_Assignment.md).
 - [Server-Side Request Forgery](../07-Injection/19-Server-Side_Request_Forgery.md).
+- [Ability to Forge Requests](02-Ability_to_Forge_Requests.md).
+- [Circumvention of Work Flows](06-Circumvention_of_Work_Flows.md).
+- [Upload of Unexpected File Types](08-Upload_of_Unexpected_File_Types.md).
 - [Payment Functionality](10-Payment_Functionality.md).
 - [Account Enumeration and Guessable User Account](../03-Identity_Management/04-Account_Enumeration_and_Guessable_User_Account.md).
 - [Bypassing Session Management Schema](../06-Session_Management/01-Session_Management_Schema.md).
@@ -96,10 +101,16 @@ The application/system must ensure that only "logically valid" data is accepted 
 
 ## Tools
 
-- [Zed Attack Proxy (ZAP)](https://www.zaproxy.org)
+- [ZAP](https://www.zaproxy.org)
 - [Burp Suite](https://portswigger.net/burp)
+- [Caido](https://caido.io)
 
 ## References
 
 - [OWASP Top 10 Proactive Controls (2024) C3: Validate Input and Handle Exceptions](https://top10proactive.owasp.org/archive/2024/the-top-10/c3-validate-input-and-handle-exceptions/)
 - [OWASP Cheat Sheet Series - Input Validation Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html)
+- [OWASP Application Security Verification Standard (ASVS) 5.0](https://github.com/OWASP/ASVS/tree/v5.0.0)
+- [PortSwigger Web Security Academy - Business logic vulnerabilities](https://portswigger.net/web-security/logic-flaws)
+- [CWE-20: Improper Input Validation](https://cwe.mitre.org/data/definitions/20.html)
+- [CWE-1284: Improper Validation of Specified Quantity in Input](https://cwe.mitre.org/data/definitions/1284.html)
+- [CWE-840: Business Logic Errors](https://cwe.mitre.org/data/definitions/840.html)

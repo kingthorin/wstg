@@ -10,25 +10,6 @@ The misuse and invalid use of valid functionality can identify attacks attemptin
 
 The lack of active defenses allows an attacker to hunt for vulnerabilities without any recourse. The application's owner will thus not know their application is under attack.
 
-### Example
-
-An authenticated user undertakes the following (unlikely) sequence of actions:
-
-1. Attempt to access a file ID their roles is not permitted to download
-2. Substitutes a single tick `'` instead of the file ID number
-3. Alters a GET request to a POST
-4. Adds an extra parameter
-5. Duplicates a parameter name/value pair
-
-The application is monitoring for misuse and responds after the 5th event with extremely high confidence the user is an attacker. For example the application:
-
-- Disables critical functionality
-- Enables additional authentication steps to the remaining functionality
-- Adds time-delays into every request-response cycle
-- Begins to record additional data about the user's interactions (e.g. sanitized HTTP request headers, bodies and response bodies)
-
-If the application does not respond in any way and the attacker can continue to abuse functionality and submit clearly malicious content at the application, the application has failed this test case. In practice the discrete example actions in the example above are unlikely to occur like that. It is much more probable that a fuzzing tool is used to identify weaknesses in each parameter in turn. This is what a security tester will have undertaken too.
-
 ## Test Objectives
 
 - Generate notes from all tests conducted against the system.
@@ -89,6 +70,25 @@ During testing, assess whether:
 These defenses work best in authenticated parts of the application, although rate of creation of new accounts or accessing content (e.g. to scrape information) can be of use in public areas.
 
 Not all the above need to be monitored by the application, but there is a problem if none of them are. By testing the web application, doing the above type of actions, was any response taken against the tester? If not, the tester should report that the application appears to have no application-wide active defenses against misuse. Note it is sometimes possible that all responses to attack detection are silent to the user (e.g. logging changes, increased monitoring, alerts to administrators and request proxying), so confidence in this finding cannot be guaranteed. In practice, very few applications (or related infrastructure such as a web application firewall) are detecting these types of misuse.
+
+## Example
+
+An authenticated user undertakes the following (unlikely) sequence of actions:
+
+1. Attempt to access a file ID their roles is not permitted to download
+2. Substitutes a single tick `'` instead of the file ID number
+3. Alters a GET request to a POST
+4. Adds an extra parameter
+5. Duplicates a parameter name/value pair
+
+The application is monitoring for misuse and responds after the 5th event with extremely high confidence the user is an attacker. For example the application:
+
+- Disables critical functionality
+- Enables additional authentication steps to the remaining functionality
+- Adds time-delays into every request-response cycle
+- Begins to record additional data about the user's interactions (e.g. sanitized HTTP request headers, bodies and response bodies)
+
+If the application does not respond in any way and the attacker can continue to abuse functionality and submit clearly malicious content at the application, the application has failed this test case. In practice the discrete example actions in the example above are unlikely to occur like that. It is much more probable that a fuzzing tool is used to identify weaknesses in each parameter in turn. This is what a security tester will have undertaken too.
 
 ## Related Test Cases
 

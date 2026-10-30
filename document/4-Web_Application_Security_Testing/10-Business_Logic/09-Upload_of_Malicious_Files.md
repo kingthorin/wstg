@@ -14,10 +14,6 @@ Finally, "malicious" means different things to different systems, for example ma
 
 The application may allow the upload of malicious files that include exploits or shellcode without submitting them to malicious file scanning. Malicious files could be detected and stopped at various points of the application architecture such as: Intrusion Detection/Prevention System, application server anti-virus software or anti-virus scanning by application as files are uploaded (perhaps offloading the scanning using SCAP).
 
-### Example
-
-A common example of this vulnerability is an application such as a blog or forum that allows users to upload images and other media files. While these are considered safe, if an attacker is able to upload executable code (such as a PHP script), this could allow them to execute operating system commands, read and modify information in the filesystem, access the backend database and fully compromise the server.
-
 ## Test Objectives
 
 - Identify the file upload functionality.
@@ -196,6 +192,10 @@ When there is file upload feature supported, the following API/methods are commo
 - Java: `new file`, `import`, `upload`, `getFileName`, `Download`, `getOutputString`
 - C/C++: `open`, `fopen`
 - PHP: `move_uploaded_file()`, `Readfile`, `file_put_contents()`, `file()`, `parse_ini_file()`, `copy()`, `fopen()`, `include()`, `require()`
+
+## Example
+
+A common example of this vulnerability is an application such as a blog or forum that allows users to upload images and other media files. While these are considered safe, if an attacker is able to upload executable code (such as a PHP script), this could allow them to execute operating system commands, read and modify information in the filesystem, access the backend database and fully compromise the server.
 
 ## Related Test Cases
 

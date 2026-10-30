@@ -6,29 +6,9 @@
 
 ## Summary
 
-Many applications are designed to display different fields depending on the user or situation by leaving some inputs hidden. However, in many cases it is possible to submit hidden field values to the server using a proxy. In these cases the server-side controls must be smart enough to perform relational or server-side edits to ensure that the proper data is allowed to the server based on user and application specific business logic.
+Many applications display different fields depending on the user or situation by hiding some inputs, or present values as non-editable controls or fixed drop-down lists. These controls are only enforced in the browser, and it is possible to submit different values to the server using a proxy. Server-side controls must perform relational and authorization checks to ensure that the data accepted is valid for the user and the business process. If the application exposes values related to business rules, such as quantity, as non-editable fields, it must maintain a copy on the server side and use that copy for business logic processing.
 
-Additionally, the application must not depend on non-editable controls, drop-down menus or hidden fields for business logic processing because these fields remain non-editable only in the context of the browsers. Users may be able to edit their values using proxy editor tools and try to manipulate business logic. If the application exposes values related to business rules like quantity, etc. as non-editable fields, it must maintain a copy on the server-side and use the same for business logic processing. Finally, aside from application/system data, log systems must be secured to prevent read, writing, and updating.
-
-Business logic integrity check vulnerabilities are unique in that these misuse cases are application specific and if users are able to make changes, one should only be able to write or update/edit specific artifacts at specific times as per the business process logic.
-
-The application must be smart enough to check for relational edits and not allow users to submit information directly to the server that is not valid, trusted because it came from a non-editable controls or the user is not authorized to submit through the frontend. Additionally, system artifacts such as logs must be "protected" from unauthorized read, writing and removal.
-
-### Example 1
-
-Imagine an ASP.NET GUI application that only allows the admin user to change the password for other users in the system. The admin user will see the username and password fields to enter a username and password while other users will not see either field. However, if a non admin user submits information in the username and password field through a proxy they may be able to "trick" the server into believing that the request has come from an admin user and change password of other users.
-
-### Example 2
-
-Most web applications have dropdown lists making it easy for the user to quickly select their state, month of birth, etc. Suppose a Project Management application allowed users to login and depending on their privileges presented them with a drop down list of projects they have access to. What happens if an attacker finds the name of another project that they should not have access to and submits the information via a proxy. Will the application give access to the project? They should not have access even though they skipped an authorization business logic check.
-
-### Example 3
-
-Suppose the motor vehicle administration system required an employee initially verify each citizens' documentation and information when they issue an identification or driver's license. At this point the business process has created data with a high level of integrity as the integrity of submitted data is checked by the employees. Now suppose the application is moved to the internet so employees can log on for full service or citizens can log on for a reduced self-service application to update certain information. At this point an attacker may be able to use an intercepting proxy to add or update data that they should not have access to and they could destroy the integrity of the data by stating that the citizen was not married but supplying data for a spouse’s name. This type of inserting or updating of unverified data destroys the data integrity and might have been prevented if the business process logic was followed.
-
-### Example 4
-
-Many systems include logging for auditing and troubleshooting purposes. But, how good/valid is the information in these logs? Can they be manipulated by attackers either intentionally or accidentally having their integrity destroyed?
+Business logic integrity check vulnerabilities are unique in that these misuse cases are application specific: users should only be able to write, update or edit specific artifacts at specific times, as the business process logic dictates. System artifacts such as logs must also be protected from unauthorized read, write and removal.
 
 ## Test Objectives
 
@@ -39,24 +19,48 @@ Many systems include logging for auditing and troubleshooting purposes. But, how
 
 ## How to Test
 
-### Specific Testing Method 1
+### Hidden Fields
 
 - Using a proxy capture HTTP traffic looking for hidden fields.
 - If a hidden field is found, see how these fields compare with the GUI application and start interrogating this value through the proxy by submitting different data values trying to circumvent the business process and manipulate values you were not intended to have access to.
+- Check whether values that the client holds as state, such as signed cookies or tokens, are verified by the server and whether altering them is detected (see [Testing JSON Web Tokens](../06-Session_Management/10-JSON_Web_Tokens.md)).
 
-### Specific Testing Method 2
+### Non-Editable Controls
 
 - Using a proxy capture HTTP traffic looking for a place to insert information into areas of the application that are non-editable.
 - If it is found, see how these fields compare with the GUI application and start interrogating this value through the proxy by submitting different data values trying to circumvent the business process and manipulate values you were not intended to have access to.
 
-### Specific Testing Method 3
+### Logs and Data Stores
 
 - List components of the application or system that could be impacted, for example logs or databases.
-- For each component identified, try to read, edit or remove its information. For example log files should be identified and Testers should try to manipulate the data/information being collected.
+- For each component identified, try to read, edit or remove its information. For example log files should be identified and testers should try to manipulate the data/information being collected, including by submitting values that contain line breaks or other control characters.
+
+## Examples
+
+### Role-Restricted Form Fields
+
+Imagine an application that only allows the admin user to change the password for other users in the system. The admin user will see the username and password fields to enter a username and password while other users will not see either field. However, if a non admin user submits information in the username and password field through a proxy they may be able to "trick" the server into believing that the request has come from an admin user and change the password of other users.
+
+### Unauthorized Drop-Down Value
+
+Most web applications have dropdown lists making it easy for the user to quickly select their state, month of birth, etc. Suppose a Project Management application allowed users to login and depending on their privileges presented them with a drop down list of projects they have access to. What happens if an attacker finds the name of another project that they should not have access to and submits the information via a proxy. Will the application give access to the project? They should not have access even though they skipped an authorization business logic check.
+
+### Unverified Self-Service Updates
+
+Suppose the motor vehicle administration system required an employee initially verify each citizen's documentation and information when they issue an identification or driver's license. At this point the business process has created data with a high level of integrity as the integrity of submitted data is checked by the employees. Now suppose the application is moved to the internet so employees can log on for full service or citizens can log on for a reduced self-service application to update certain information. At this point an attacker may be able to use an intercepting proxy to add or update data that they should not have access to and they could destroy the integrity of the data by stating that the citizen was not married but supplying data for a spouse's name. This type of inserting or updating of unverified data destroys the data integrity and might have been prevented if the business process logic was followed.
+
+### Log Injection
+
+Many systems include logging for auditing and troubleshooting purposes. If the application writes a user-supplied value, such as a username, to the log without neutralizing line breaks, an attacker can submit a value containing a line break followed by text that looks like a separate log entry. The forged entry can mislead anyone reviewing the log. See [CWE-117: Improper Output Neutralization for Logs](https://cwe.mitre.org/data/definitions/117.html).
 
 ## Related Test Cases
 
-All [Injection Testing](../07-Injection/README.md) test cases.
+- All [Injection Testing](../07-Injection/README.md) test cases.
+- [Business Logic Data Validation](01-Business_Logic_Data_Validation.md)
+- [Ability to Forge Requests](02-Ability_to_Forge_Requests.md)
+- [Bypassing Authorization Schema](../05-Authorization/02-Bypassing_Authorization_Schema.md)
+- [Privilege Escalation](../05-Authorization/03-Privilege_Escalation.md)
+- [Insecure Direct Object References](../05-Authorization/04-Insecure_Direct_Object_References.md)
 
 ## Remediation
 
@@ -64,13 +68,13 @@ The application should follow strict access controls on how data and artifacts c
 
 ## Tools
 
-- Various system/application tools such as editors and file manipulation tools.
-- [Zed Attack Proxy (ZAP)](https://www.zaproxy.org)
+- [ZAP](https://www.zaproxy.org)
 - [Burp Suite](https://portswigger.net/burp)
+- [Caido](https://caido.io)
 
 ## References
 
-- [Implementing Referential Integrity and Shared Business Logic in a RDB](https://agiledata.org/essays/referentialIntegrity.html)
-- [On Rules and Integrity Constraints in Database Systems](https://www.comp.nus.edu.sg/~lingtw/papers/IST92.teopk.pdf)
-- [Use referential integrity to enforce basic business rules in Oracle](https://web.archive.org/web/20160423081903/http://www.techrepublic.com/article/use-referential-integrity-to-enforce-basic-business-rules-in-oracle/)
-- [Maximizing Business Logic Reuse with Reactive Logic](https://web.archive.org/web/20221116203934/https://dzone.com/articles/maximizing-business-logic)
+- [CWE-345: Insufficient Verification of Data Authenticity](https://cwe.mitre.org/data/definitions/345.html)
+- [CWE-117: Improper Output Neutralization for Logs](https://cwe.mitre.org/data/definitions/117.html)
+- [OWASP Cheat Sheet Series - Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)
+- [OWASP Application Security Verification Standard (ASVS) 5.0](https://github.com/OWASP/ASVS/tree/v5.0.0)

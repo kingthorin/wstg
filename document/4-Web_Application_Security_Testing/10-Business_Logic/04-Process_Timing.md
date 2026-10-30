@@ -12,27 +12,6 @@ Process timing logic vulnerabilities are unique in that these manual misuse case
 
 Processing timing may give/leak information on what is being done in the application/system background processes. If an application allows users to guess what the particular next outcome will be by processing time variations, users will be able to adjust accordingly and change behavior based on the expectation and "game the system".
 
-### Example 1
-
-Video gambling/slot machines may take longer to process a transaction just prior to a large payout. This would allow astute gamblers to gamble minimum amounts until they see the long process time which would then prompt them to bet the maximum.
-
-### Example 2
-
-Many system log on processes ask for the username and password. If you look closely you may be able to see that entering an invalid username and invalid user password takes more time to return an error than entering a valid username and invalid user password. This may allow the attacker to know if they have a valid username and not need to rely on the GUI message.
-
-A similar issue may be present in password reset functionality that would send an email to the user with a forgotten link or code, as sending emails can be significantly slower than just returning the HTTP response.
-
-![Example Control Flow of Login Form](images/10-control_flow_of_login_form.jpg)\
-*Figure 4.10.4-1: Example Control Flow of Login Form*
-
-### Example 3
-
-Most Arenas or travel agencies have ticketing applications that allow users to purchase tickets and reserve seats. When the user requests the tickets, seats they pick are locked or reserved pending payment. What if an attacker keeps reserving seats but not checking out? Will the seats be released, or will no tickets be sold? Some ticket vendors now only allow users 5 minutes to complete a transaction or the transaction is invalidated.
-
-### Example 4
-
-Suppose a precious metals e-commerce site allows users to make purchases with a price quote based on market price at the time they log on. What if an attacker logs on and places an order but does not complete the transaction until later in the day only if the price of the metals goes up? Will the attacker get the initial lower price?
-
 ## Test Objectives
 
 - Review the project documentation for system functionality that may be impacted by time.
@@ -45,6 +24,29 @@ The tester should identify which processes are dependent on time, whether it was
 Following that, it is best to automate the requests that will abuse the above discovered processes, as tools are better fit to analyze the timing and are more precise than manual testing. If this is not possible, manual testing could still be used.
 
 The tester should draw a diagram of how the process flows, the injection points, and prepare the requests before hand to launch them at the vulnerable processes. Once done, close analysis should be done to identify differences in the process execution, and if the process is misbehaving against the agreed upon business logic.
+
+## Examples
+
+### Payout Processing Time
+
+Video gambling/slot machines may take longer to process a transaction just prior to a large payout. This would allow astute gamblers to gamble minimum amounts until they see the long process time which would then prompt them to bet the maximum.
+
+### Username Enumeration by Response Time
+
+Many system log on processes ask for the username and password. If you look closely you may be able to see that entering an invalid username and invalid user password takes more time to return an error than entering a valid username and invalid user password. This may allow the attacker to know if they have a valid username and not need to rely on the GUI message.
+
+A similar issue may be present in password reset functionality that would send an email to the user with a forgotten link or code, as sending emails can be significantly slower than just returning the HTTP response.
+
+![Example Control Flow of Login Form](images/10-control_flow_of_login_form.jpg)\
+*Figure 4.10.4-1: Example Control Flow of Login Form*
+
+### Reserved Seats Never Released
+
+Most Arenas or travel agencies have ticketing applications that allow users to purchase tickets and reserve seats. When the user requests the tickets, seats they pick are locked or reserved pending payment. What if an attacker keeps reserving seats but not checking out? Will the seats be released, or will no tickets be sold? Some ticket vendors now only allow users 5 minutes to complete a transaction or the transaction is invalidated.
+
+### Stale Price Quote
+
+Suppose a precious metals e-commerce site allows users to make purchases with a price quote based on market price at the time they log on. What if an attacker logs on and places an order but does not complete the transaction until later in the day only if the price of the metals goes up? Will the attacker get the initial lower price?
 
 ## Related Test Cases
 

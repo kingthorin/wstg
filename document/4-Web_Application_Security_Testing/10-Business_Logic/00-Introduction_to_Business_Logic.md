@@ -1,12 +1,12 @@
 # Introduction to Business Logic
 
-Identifying business logic flaws in a multi-functional dynamic web application requires thinking in unconventional methods. If an application's authentication mechanism is developed with the intention of performing steps 1, 2, 3 in that specific order to authenticate a user. What happens if the user goes from step 1 straight to step 3? In this simplistic example, does the application provide access by failing open; deny access, or just error out with a 500 message?
+Identifying business logic flaws in a multi-functional dynamic web application requires thinking in unconventional methods. Suppose an application's authentication mechanism is developed with the intention of performing steps 1, 2, 3 in that specific order to authenticate a user. What happens if the user goes from step 1 straight to step 3? In this simplistic example, does the application fail open and grant access, deny access, or just error out with a 500 message?
 
-There are many examples that can be made, but the one constant lesson is "think outside of conventional wisdom". This type of vulnerability cannot be detected by a vulnerability scanner and relies upon the skills and creativity of the penetration tester. In addition, this type of vulnerability is usually one of the hardest to detect, and usually application specific but, at the same time, usually one of the most detrimental to the application, if exploited.
+There are many examples that can be made, but the one constant lesson is "think outside of conventional wisdom". This type of vulnerability generally cannot be detected by a vulnerability scanner and relies upon the skills and creativity of the penetration tester. In addition, this type of vulnerability is usually one of the hardest to detect, and usually application specific but, at the same time, usually one of the most detrimental to the application, if exploited.
 
 The classification of business logic flaws has been under-studied; although exploitation of business flaws frequently happens in real-world systems, and many applied vulnerability researchers investigate them. The greatest focus is in web applications. There is debate within the community about whether these problems represent particularly new concepts, or if they are variations of well-known principles.
 
-Testing of business logic flaws is similar to the test types used by functional testers that focus on logical or finite state testing. These types of tests require that security professionals think a bit differently, develop abuse and misuse cases and use many of the testing techniques embraced by functional testers. Automation of business logic abuse cases is not possible and remains a manual art relying on the skills of the tester and their knowledge of the complete business process and its rules.
+Testing of business logic flaws is similar to the test types used by functional testers that focus on logical or finite state testing. These types of tests require that security professionals think a bit differently, develop abuse and misuse cases and use many of the testing techniques embraced by functional testers. Tools can replay, compare and script the steps of an abuse case, but identifying which cases matter remains a manual art relying on the skills of the tester and their knowledge of the complete business process and its rules.
 
 ## Business Limits and Restrictions
 
@@ -24,7 +24,7 @@ Suppose an e-commerce site allows users to select items to purchase, view a summ
 
 **Example 2**:
 
-Holding/locking resources and keeping others from purchasing these items online may result in attackers purchasing items at a lower price. The countermeasure to this problem is to implement timeouts and mechanisms to ensure that only the correct price can be charged.
+Attackers may hold or lock resources (for example, items in a cart) to keep others from purchasing them online, or to buy them later at a lower price. The countermeasure to this problem is to implement timeouts and mechanisms to ensure that only the correct price can be charged.
 
 **Example 3**:
 
@@ -32,58 +32,47 @@ What if a user was able to start a transaction linked to their club/loyalty acco
 
 ## Tools
 
-While there are tools for testing and verifying that business processes are functioning correctly in valid situations these tools are incapable of detecting logical vulnerabilities. For example, tools have no means of detecting if a user is able to circumvent the business process flow through editing parameters, predicting resource names or escalating privileges to access restricted resources nor do they have any mechanism to help the human testers to suspect this state of affairs.
+While there are tools for testing and verifying that business processes are functioning correctly in valid situations these tools are incapable of detecting logical vulnerabilities on their own. For example, tools have no means of detecting if a user is able to circumvent the business process flow through editing parameters, predicting resource names or escalating privileges to access restricted resources nor do they have any mechanism to help the human testers to suspect this state of affairs.
 
 The following are some common tool types that can be useful in identifying business logic issues.
 
-When installing addons you should always be diligent in considering the permissions they request and your browser usage habits.
-
 ### Intercepting Proxy
 
-To Observe the Request and Response Blocks of HTTP Traffic
+To observe, replay and modify the requests and responses of HTTP traffic.
 
-- [Zed Attack Proxy (ZAP)](https://www.zaproxy.org)
-- [Burp Proxy](https://portswigger.net/burp)
+- [ZAP](https://www.zaproxy.org)
+    - Its [Automation Framework](https://www.zaproxy.org/docs/automate/automation-framework/) can script repeatable multi-step flows.
+- [Burp Suite](https://portswigger.net/burp)
+    - Extensions such as [Autorize](https://github.com/PortSwigger/autorize) (compare responses between users or roles) and [Turbo Intruder](https://github.com/PortSwigger/turbo-intruder) (send requests in tight timing windows, for example to test race conditions) are useful for logic testing.
+- [Caido](https://caido.io)
 
 ### Browser Developer Tools
 
-To View and Modify HTTP/HTTPS Headers, Post Parameters, and Observe the DOM of the Browser
+To view and modify headers, request parameters, storage and cookies, and to observe the DOM of the browser.
 
 - Built-in browser developer tools (Network, Application/Storage, and Elements panels)
 
-## Miscellaneous Test Tools
-
-- [Web Developer toolbar](https://chromewebstore.google.com/detail/bfbameneiokkgbdmiekhjnmfkcnldhhm)
-    - The Web Developer extension adds a toolbar button to the browser with various web developer tools. This is the official port of the Web Developer extension for Firefox.
-- [HTTP Request Maker for Firefox](https://addons.mozilla.org/en-US/firefox/addon/http-request-maker)
-    - Request Maker is a tool for penetration testing. With it you can easily capture requests made by web pages, tamper with the URL, headers and POST data and, of course, make new requests
-- [Cookie Editor for Chrome](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)
-- [Cookie Editor for Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor)
-    - Cookie Editor is a cookie manager. You can add, delete, edit, search, protect, and block cookies
+When installing browser extensions you should always be diligent in considering the permissions they request and your browser usage habits.
 
 ## References
+
+### OWASP Related
+
+- [OWASP Top 10:2025 A06 Insecure Design](https://owasp.org/Top10/2025/A06_2025-Insecure_Design/)
+- [OWASP API Security Top 10 2023 - API6: Unrestricted Access to Sensitive Business Flows](https://owasp.org/API-Security/editions/2023/en/0xa6-unrestricted-access-to-sensitive-business-flows/)
+- [OWASP Application Security Verification Standard (ASVS) 5.0](https://github.com/OWASP/ASVS/tree/v5.0.0)
+- [OWASP Cheat Sheet Series - Business Logic Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Business_Logic_Security_Cheat_Sheet.html)
+- [OWASP Cheat Sheet Series - Abuse Case Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Abuse_Case_Cheat_Sheet.html)
+
+### Useful Sites
+
+- [PortSwigger Web Security Academy - Business logic vulnerabilities](https://portswigger.net/web-security/logic-flaws)
+- [PortSwigger Web Security Academy - Race conditions](https://portswigger.net/web-security/race-conditions)
+- [PortSwigger Research - Smashing the state machine: the true potential of web race conditions](https://portswigger.net/research/smashing-the-state-machine)
+- [CWE-840: Business Logic Errors](https://cwe.mitre.org/data/definitions/840.html)
+- [CWE-841: Improper Enforcement of Behavioral Workflow](https://cwe.mitre.org/data/definitions/841.html)
 
 ### Whitepapers
 
 - [The Common Misuse Scoring System (CMSS): Metrics for Software Feature Misuse Vulnerabilities - NISTIR 7864](https://csrc.nist.gov/publications/detail/nistir/7864/final)
-- [Finite State testing of Graphical User Interfaces, Fevzi Belli](https://www.semanticscholar.org/paper/b57c6c8022abfd2cb17ec785d3622027b3edfaaf)
-- [Principles and Methods of Testing Finite State Machines - A Survey, David Lee, Mihalis Yannakakis](https://ieeexplore.ieee.org/document/533956)
-- [Security Issues in Online Games, Jianxin Jeff Yan and Hyun-Jin Choi](https://www.researchgate.net/publication/220677013_Security_issues_in_online_games)
-- [Securing Virtual Worlds Against Real Attack, Dr. Igor Muttik, McAfee](https://www.infopoint-security.de/open_downloads/2008/McAfee_wp_online_gaming_0808.pdf)
-- [Seven Business Logic Flaws That Put Your Website At Risk - Jeremiah Grossman Founder and CTO, WhiteHat Security](https://www.slideshare.net/jeremiahgrossman/seven-business-logic-flaws-that-put-your-website-at-risk-harvard-07062008)
-- [Toward Automated Detection of Logic Vulnerabilities in Web Applications - Viktoria Felmetsger Ludovico Cavedon Christopher Kruegel Giovanni Vigna](https://www.usenix.org/legacy/event/sec10/tech/full_papers/Felmetsger.pdf)
-
-### OWASP Related
-
-- [How to Prevent Business Flaws Vulnerabilities in Web Applications, Marco Morana](https://www.slideshare.net/slideshow/issa-louisville-2010morana/5391600)
-
-### Useful Sites
-
-- [Business logic](https://en.wikipedia.org/wiki/Business_logic)
-- [Business Logic Flaws and Yahoo Games](https://blog.jeremiahgrossman.com/2006/12/business-logic-flaws.html)
-- [CWE-840: Business Logic Errors](https://cwe.mitre.org/data/definitions/840.html)
-- [Defying Logic: Theory, Design, and Implementation of Complex Systems for Testing Application Logic](https://www.semanticscholar.org/paper/d14a18f08f6488f903f2f691a1d159e95d8ee04f)
-
-### Books
-
-- [The Decision Model: A Business Logic Framework Linking Business and Technology, By Barbara Von Halle, Larry Goldberg, Published by CRC Press, ISBN1420082817 (2010)](https://isbnsearch.org/isbn/1420082817)
+- [Toward Automated Detection of Logic Vulnerabilities in Web Applications - Viktoria Felmetsger, Ludovico Cavedon, Christopher Kruegel, Giovanni Vigna](https://www.usenix.org/legacy/event/sec10/tech/full_papers/Felmetsger.pdf)

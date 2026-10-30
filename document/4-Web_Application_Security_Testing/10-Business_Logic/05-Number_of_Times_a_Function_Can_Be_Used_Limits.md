@@ -12,10 +12,6 @@ Vulnerabilities related to testing for the function limits are application speci
 
 Attackers may be able to circumvent the business logic and execute a function more times than "allowable" exploiting the application for personal gain.
 
-### Example
-
-Suppose an eCommerce site allows users to take advantage of any one of many discounts on their total purchase and then proceed to checkout and tendering. What happens of the attacker navigates back to the discounts page after taking and applying the one "allowable" discount? Can they take advantage of another discount? Can they take advantage of the same discount multiple times?
-
 ## Test Objectives
 
 - Identify functions that must set limits to the times they can be called.
@@ -25,6 +21,10 @@ Suppose an eCommerce site allows users to take advantage of any one of many disc
 
 - Review the project documentation and use exploratory testing looking for functions or features in the application or system that should not be executed more that a single time or specified number of times during the business logic workflow.
 - For each of the functions and features found that should only be executed a single time or specified number of times during the business logic workflow, develop abuse/misuse cases that may allow a user to execute more than the allowable number of times. For example, can a user navigate back and forth through the pages multiple times executing a function that should only execute once? or can a user load and unload shopping carts allowing for additional discounts.
+
+## Example
+
+Suppose an eCommerce site allows users to take advantage of any one of many discounts on their total purchase and then proceed to checkout and tendering. What happens of the attacker navigates back to the discounts page after taking and applying the one "allowable" discount? Can they take advantage of another discount? Can they take advantage of the same discount multiple times?
 
 ## Related Test Cases
 
